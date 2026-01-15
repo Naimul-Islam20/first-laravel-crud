@@ -39,8 +39,40 @@ class PostController extends Controller
         return redirect()->route('home')->with('success', 'Post created successfully');
     }
 
-    public function editFile(){
-        return view('edit');
+    public function editFile($id){
+        $post = post::findOrFail($id);
+        return view('edit',['ourPost'=>$post]);
+    }
+
+    public function updateData(Request $request, $id){
+      
+
+               $validated = $request->validate([
+            'name' => 'required',
+            'description' => 'required',
+            'image' => 'nullable|mimes:png,jpg,gif',
+        ]);
+
+        
+        //add new pos
+         $post = post::findOrFail($id);
+
+        $post->name = $request->name;
+        $post->description = $request->description;
+
+        //img upload
+        if(isset($request->image)){
+              $imgName= time().'.'.$request->image->extension();
+              $request->image->move(public_path('images'), $imgName);
+               $post->image = $imgName;
+        }
+      
+       
+        $post->save();
+
+        return redirect()->route('home')->with('success', 'Post updated successfully');
+
+
     }
 
 
